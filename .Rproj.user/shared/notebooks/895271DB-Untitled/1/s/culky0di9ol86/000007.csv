@@ -1,0 +1,28 @@
+"0","dat_1 <- dat %>% 
+  mutate(
+    ubi_300 = gsub(""Stop working"", ""Work less"", ubi_300), 
+    ubi_500 = gsub(""Stop working"", ""Work less"", ubi_500),
+    ubi_500 = gsub(""Stop working"", ""Work less"", ubi_800)
+  ) %>% 
+  mutate(
+    ubi_300 = gsub(""Work less"", ""Work less/Stop working"", ubi_300),
+    ubi_500 = gsub(""Work less"", ""Work less/Stop working"", ubi_500),
+    ubi_800 = gsub(""Work less"", ""Work less/Stop working"", ubi_800)
+  ) %>% 
+  mutate(income_cat = case_when( 
+    income == ""0-15,000"" ~ ""Low"", 
+    income == ""15,000-30,000"" ~ ""Middle"",
+    income == ""30,000-45,000"" ~ ""Middle"",
+    income == ""45,000-60,000"" ~ ""High"",
+    income == ""60,000+"" ~ ""High"")) %>% 
+  mutate(hours = case_when( 
+    hours == ""0-10"" ~ ""Less than 20"", 
+    hours == ""10-20"" ~ ""Less than 20"",
+    hours == ""20-40"" ~ ""More than 20"",
+    hours == ""40+"" ~ ""More than 20"")) 
+"
+"2","Error: Problem with `mutate()` column `ubi_300`.
+[34mℹ[39m `ubi_300 = gsub(""Stop working"", ""Work less"", ubi_300)`.
+[31mx[39m object 'ubi_300' not found
+[90mRun `rlang::last_error()` to see where the error occurred.[39m
+"

@@ -1,0 +1,119 @@
+---
+title: "Untitled"
+author: "Sofia Lai"
+date: "5/3/2022"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Loading libraries
+```{r}
+pacman::p_load(haven, tidyverse, ggplot2, table1, readxl, gtsummary, writexl, stargazer, questionr, flextable, magrittr)
+```
+
+```{r}
+dat <- read_csv("./dat.csv")
+dat_1 <- dat %>% 
+  mutate(
+    ubi_300 = gsub("Stop working", "Work less", ubi_300), 
+    ubi_500 = gsub("Stop working", "Work less", ubi_500),
+    ubi_500 = gsub("Stop working", "Work less", ubi_800)
+  ) %>% 
+  mutate(
+    ubi_300 = gsub("Work less", "Work less/Stop working", ubi_300),
+    ubi_500 = gsub("Work less", "Work less/Stop working", ubi_500),
+    ubi_800 = gsub("Work less", "Work less/Stop working", ubi_800)
+  ) %>% 
+  mutate(income_cat = case_when( 
+    income == "0-15,000" ~ "Low", 
+    income == "15,000-30,000" ~ "Middle",
+    income == "30,000-45,000" ~ "Middle",
+    income == "45,000-60,000" ~ "High",
+    income == "60,000+" ~ "High")) %>% 
+  mutate(hours = case_when( 
+    hours == "0-10" ~ "Less than 20", 
+    hours == "10-20" ~ "Less than 20",
+    hours == "20-40" ~ "More than 20",
+    hours == "40+" ~ "More than 20")) 
+
+dat_1$hours <- as.factor(dat_1$hours)
+dat_1$ubi_300 <- as.factor(dat_1$ubi_300)
+dat_1$ubi_500 <- as.factor(dat_1$ubi_500)
+dat_1$ubi_800 <- as.factor(dat_1$ubi_800)
+dat_1$change_500 <- as.factor(dat_1$change_500)
+dat_1$change_800 <- as.factor(dat_1$change_800)
+dat_1$income_cat <- as.factor(dat_1$income_cat)
+dat_1$ubi_300 <- relevel(dat_1$ubi_300, ref = "Work less/Stop working")
+dat_1$ubi_500 <- relevel(dat_1$ubi_500, ref = "Work less/Stop working")
+dat_1$ubi_800 <- relevel(dat_1$ubi_800, ref = "Work less/Stop working")
+dat_1$income_cat <- relevel(dat_1$income_cat, ref = "Middle")
+
+#not sure what this dat_x is
+dat_x$hours <- as.factor(dat_x$hours)
+dat_x$ubi_300 <- as.factor(dat_x$ubi_300)
+dat_x$ubi_500 <- as.factor(dat_x$ubi_500)
+dat_x$ubi_800 <- as.factor(dat_x$ubi_800)
+dat_x$income_cat <- as.factor(dat_x$income_cat)
+```
+
+``` {R}
+#behavior under UBI = 300 and hours worked 
+#UBI ref category = work less. So Work less = 1 and continue working = 0. 
+output_300 <- glm(ubi_300 ~ hours + income_cat + gender + age + job_ashamed + job_satisfied + job_interesting + job_repetitive + job_boring , data = dat_1, family=binomial())
+tab1 <- tbl_regression(output_300, exponentiate = TRUE, include = c(hours, income_cat),
+               label = list(hours ~ "Weekly work hours",
+                            income_cat ~ "Income category")) %>%
+  bold_labels() %>%
+  italicize_levels() %>% 
+  as_gt() %>%
+  gt::tab_header(title = "Attitudes under UBI = EUR 300")
+
+tab1
+
+```
+
+``` {R}
+#behavior under UBI = 500 and hours worked
+output_500 <- glm(ubi_500 ~ hours  + income_cat + gender + age + job_ashamed + job_satisfied + job_interesting + job_repetitive + job_boring, data = dat_1, family=binomial())
+tbl_regression(output_500, exponentiate = TRUE, include = hours,
+               label = list(hours ~ "Weekly work hours")) %>%
+  bold_labels() %>%
+  italicize_levels() %>% 
+  as_gt() %>%
+  gt::tab_header(title = "Weekly work hours and UBI = 500")
+
+```
+
+
+``` {R}
+#behavior under UBI = 800 and hours worked
+output_800 <- glm(ubi_800 ~ hours + job_ashamed , data = dat_1, family=binomial())
+tbl_regression(output_800, exponentiate = TRUE, include = hours,
+               label = list(hours ~ "Weekly work hours")) %>%
+  bold_labels() %>%
+  italicize_levels() %>% 
+  as_gt() %>%
+  gt::tab_header(title = "Weekly work hours and UBI = 800")
+
+freq(dat_1$change_500)
+  
+```
+
+``` {R}
+#behavior under UBI = 300 and income categories 
+
+output_change_500 <- glm(change_500 ~ income, data = dat_1, family=binomial())
+tbl_regression(output_change_500, exponentiate = TRUE)
+
+               
+               , include = hours,
+               label = list(hours ~ "Weekly work hours")) %>%
+  bold_labels() %>%
+  italicize_levels() %>% 
+  as_gt() %>%
+  gt::tab_header(title = "Weekly work hours and UBI = 800")
+
+```
+
